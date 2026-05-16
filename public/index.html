@@ -476,18 +476,12 @@ footer{background:var(--ink);padding:3.5rem 4rem 2rem;border-top:1px solid rgba(
   </div>
 </section>
 
-<!-- MEMBERS CTA -->
-<section id="members">
-  <canvas id="mem-canvas"></canvas>
-  <div class="mem-bg-word">Members</div>
-  <div class="mem-content">
-    <p class="s-eye rv" style="justify-content:center">Community</p>
-    <h2 class="mem-h2 rv d1">Join the<br><em>infiniT</em> Zone</h2>
-    <p class="mem-sub rv d2">A space for students — share memes, celebrate wins, and stay connected beyond the classroom.</p>
-    <a href="/members" class="mem-btn rv d3">
-      <span>Enter Members Zone</span>
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-    </a>
+<!-- MEMBERS (placeholder) -->
+<section id="members" style="min-height:60vh;display:flex;align-items:center;justify-content:center;">
+  <div class="mem-content" style="text-align:center;">
+    <p class="s-eye rv" style="justify-content:center">Coming Soon</p>
+    <h2 class="mem-h2 rv d1">Members <em>Section</em></h2>
+    <p class="mem-sub rv d2">This area is under construction. Check back soon!</p>
   </div>
 </section>
 
@@ -763,6 +757,20 @@ document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.le
 document.querySelectorAll('a,button,.bc,.tc,.c3d-card').forEach(el=>{
   el.addEventListener('mouseenter',()=>ring.classList.add('big'));
   el.addEventListener('mouseleave',()=>ring.classList.remove('big'));
+});
+
+// ══════════════════════════════════════════
+// SMOOTH SCROLL NAV LINKS
+// ══════════════════════════════════════════
+document.querySelectorAll('a[href^="#"]').forEach(link=>{
+  link.addEventListener('click',e=>{
+    e.preventDefault();
+    const target=document.querySelector(link.getAttribute('href'));
+    if(target){
+      const top=target.getBoundingClientRect().top+window.scrollY-80;
+      window.scrollTo({top,behavior:'smooth'});
+    }
+  });
 });
 
 // ══════════════════════════════════════════
