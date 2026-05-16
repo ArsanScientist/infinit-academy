@@ -35,18 +35,19 @@ a{text-decoration:none;color:inherit}
 #bar{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold2));z-index:9997;width:0%;transition:width .1s linear}
 
 /* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:9000;padding:1.8rem 4rem;display:flex;align-items:center;justify-content:space-between;transition:all .5s cubic-bezier(.22,1,.36,1)}
+nav{position:fixed;top:0;left:0;right:0;z-index:9000;padding:1.8rem 4rem;display:flex;align-items:center;justify-content:space-between;transition:all .5s cubic-bezier(.22,1,.36,1);pointer-events:none}
+nav>*{pointer-events:auto}
 nav.ink{padding:1rem 4rem;background:rgba(249,248,244,.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
-.nav-logo{display:flex;align-items:center;gap:.8rem;cursor:pointer;position:relative;z-index:9001;user-select:none}
+.nav-logo{display:flex;align-items:center;gap:.8rem;cursor:pointer;user-select:none}
 .nav-logo svg{width:40px;height:40px;flex-shrink:0}
 .nav-name{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;letter-spacing:.04em}
 .nav-name em{color:var(--gold);font-style:italic}
-.nav-links{display:flex;gap:2.8rem;list-style:none;position:relative;z-index:9001}
+.nav-links{display:flex;gap:2.8rem;list-style:none}
 .nav-links a{font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);transition:color .3s;position:relative}
 .nav-links a::after{content:'';position:absolute;bottom:-3px;left:0;width:0;height:1px;background:var(--gold);transition:width .35s cubic-bezier(.22,1,.36,1)}
 .nav-links a:hover{color:var(--ink)}
 .nav-links a:hover::after{width:100%}
-.nav-cta{font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;padding:.6rem 1.5rem;border:1px solid var(--border);border-radius:2px;transition:all .35s;position:relative;z-index:9001}
+.nav-cta{font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;padding:.6rem 1.5rem;border:1px solid var(--border);border-radius:2px;transition:all .35s}
 .nav-cta:hover{background:var(--ink);color:white;border-color:var(--ink)}
 
 /* HERO */
