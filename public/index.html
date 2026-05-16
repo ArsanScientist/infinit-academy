@@ -23,6 +23,7 @@ a{text-decoration:none;color:inherit}
 #cur{position:fixed;width:10px;height:10px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:multiply;transition:transform .15s}
 #cur-ring{position:fixed;width:36px;height:36px;border:1.5px solid rgba(196,154,42,.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .4s,height .4s,background .4s,border-color .4s}
 #cur-ring.big{width:56px;height:56px;background:rgba(196,154,42,.06);border-color:var(--gold)}
+nav,.nav-links a,.nav-cta,.mem-btn,.bc,.tc,.c3d-card,a,button{cursor:pointer!important}
 
 /* LOADER */
 #loader{position:fixed;inset:0;z-index:10000;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 1s ease,visibility 1s}
@@ -42,11 +43,11 @@ nav.ink{padding:1rem 4rem;background:rgba(249,248,244,.92);backdrop-filter:blur(
 .nav-name{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;letter-spacing:.04em}
 .nav-name em{color:var(--gold);font-style:italic}
 .nav-links{display:flex;gap:2.8rem;list-style:none}
-.nav-links a{font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);transition:color .3s;position:relative}
+.nav-links a{font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);transition:color .3s;position:relative;pointer-events:auto;z-index:601}
 .nav-links a::after{content:'';position:absolute;bottom:-3px;left:0;width:0;height:1px;background:var(--gold);transition:width .35s cubic-bezier(.22,1,.36,1)}
 .nav-links a:hover{color:var(--ink)}
 .nav-links a:hover::after{width:100%}
-.nav-cta{font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;padding:.6rem 1.5rem;border:1px solid var(--border);border-radius:2px;transition:all .35s}
+.nav-cta{font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;padding:.6rem 1.5rem;border:1px solid var(--border);border-radius:2px;transition:all .35s;pointer-events:auto;z-index:601}
 .nav-cta:hover{background:var(--ink);color:white;border-color:var(--ink)}
 
 /* HERO */
