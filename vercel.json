@@ -2,7 +2,13 @@
   "version": 2,
   "builds": [
     { "src": "public/**", "use": "@vercel/static" },
-    { "src": "server.js", "use": "@vercel/node" }
+    {
+      "src": "server.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["node_modules/sql.js/dist/sql-wasm.wasm"]
+      }
+    }
   ],
   "routes": [
     { "src": "/uploads/(.*)", "dest": "/uploads/$1" },

@@ -3,7 +3,6 @@ const path = require('path');
 const fs = require('fs');
 const initSqlJs = require('sql.js');
 
-// On Vercel, use /tmp for writable storage
 const isVercel = !!process.env.VERCEL;
 const DB_PATH = isVercel ? '/tmp/infinit.db.bin' : path.join(__dirname, 'infinit.db.bin');
 
@@ -20,11 +19,23 @@ async function initDb() {
   if (initPromise) return initPromise;
 
   initPromise = (async () => {
-    const SQL = await initSqlJs();
+    const wasmPath = path.join(__dirname, 'node_modules', 'sql.js', 'dist', 'sql-wasm.wasm');
+
+    const SQL = await initSqlJs({
+      locateFile: (file) => {
+        if (file === 'sql-wasm.wasm') return wasmPath;
+        return file;
+      }
+    });
 
     if (fs.existsSync(DB_PATH)) {
-      const fileBuffer = fs.readFileSync(DB_PATH);
-      db = new SQL.Database(fileBuffer);
+      try {
+        const fileBuffer = fs.readFileSync(DB_PATH);
+        db = new SQL.Database(fileBuffer);
+      } catch (e) {
+        console.warn('DB file corrupt, creating fresh DB:', e.message);
+        db = new SQL.Database();
+      }
     } else {
       db = new SQL.Database();
     }

@@ -56,9 +56,10 @@ module.exports = async (req, res) => {
     try {
       await initDb();
       dbInitialized = true;
+      console.log('✓ DB initialized on first request');
     } catch (err) {
-      console.error('DB init failed:', err);
-      return res.status(500).json({ error: 'Database initialization failed' });
+      console.error('✗ DB init failed:', err);
+      return res.status(500).json({ error: 'Database initialization failed', detail: err.message });
     }
   }
   app(req, res);
