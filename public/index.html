@@ -38,7 +38,7 @@ a{text-decoration:none;color:inherit}
 nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:1.8rem 4rem;display:flex;align-items:center;justify-content:space-between;transition:all .5s cubic-bezier(.22,1,.36,1);pointer-events:none}
 nav>*{pointer-events:auto}
 nav.ink{padding:1rem 4rem;background:rgba(249,248,244,.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
-.nav-logo{display:flex;align-items:center;gap:.8rem;pointer-events:auto}
+.nav-logo{display:flex;align-items:center;gap:.8rem}
 .nav-logo img{width:40px;height:40px;object-fit:contain;border-radius:4px}
 .nav-name{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;letter-spacing:.04em}
 .nav-name em{color:var(--gold);font-style:italic}
@@ -274,17 +274,17 @@ footer{background:var(--ink);padding:3.5rem 4rem 2rem;border-top:1px solid rgba(
 
 <!-- NAV -->
 <nav id="nav">
-  <a href="#hero" class="nav-logo">
+  <div class="nav-logo" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="cursor:pointer">
     <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gIoSUNDX1BST0ZJTEUAAQEAAAIYAAAAAAIQAABtbnRyUkdCIFhZWiAAAAAAAAAAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAAHRyWFlaAAABZAAAABRnWFlaAAABeAAAABRiWFlaAAABjAAAABRyVFJDAAABoAAAAChnVFJDAAABoAAAAChiVFJDAAABoAAAACh3dHB0AAAByAAAABRjcHJ0AAAB3AAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAFgAAAAcAHMAUgBHAEIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFhZWiAAAAAAAABvogAAOPUAAAOQWFlaIAAAAAAAAGKZAAC3hQAAGNpYWVogAAAAAAAAJKAAAA+EAAC2z3BhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABYWVogAAAAAAAA9tYAAQAAAADTLW1sdWMAAAAAAAAAAQAAAAxlblVTAAAAIAAAABwARwBvAG8AZwBsAGUAIABJAG4AYwAuACAAMgAwADEANv/bAEMACAYGBwYFCAcHBwkJCAoMFA0MCwsMGRITDxQdGh8eHRocHCAkLicgIiwjHBwoNyksMDE0NDQfJzk9ODI8LjM0Mv/bAEMBCQkJDAsMGA0NGDIhHCEyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMv/AABEIAoACgAMBIgACEQEDEQH/xAAcAAEBAAIDAQEAAAAAAAAAAAAAAQUGAgQHAwj/xABQEAACAQMCAwYDBAYGBgcHBQAAAQIDBBEFIQYxQQcSIlFhcROBkRQyUqEVI0JiscEIM0NygtEWkqKywvAkJTREU7PhJjVUY3N0k3WUo9Lx/8QAGwEBAAIDAQEAAAAAAAAAAAAAAAEEAgMFBgf/xAA3EQEAAgECAwMLBAEEAwEAAAAAAQIDBBESITEFQVEGEyJhcYGRscHR8BQyoeHxIzNCUhVicjT/2gAMAwEAAhEDEQA/APfgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOM6kKcXKclGK6t4ImYrG89ByBi7jWqUMxox+I/N7IxNxfXFy8VKj7v4Vsjgazyj0mn3rj9OfV0+P23WsekvbnPJnLjVbahlKXxJeUf8zoQ1qrO6h3lGFLO6X+ZiQeX1HlFrct4tE8MRPSPr3rlNJjrG0825J5KdHS7j49nFN5nDwv+R3j6Dps9dRhrlp0tG7l3rNbTWQAG9iAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHVuNQt7faU05fhjuzVmz4sFePLaIj1sq1m07RDtHyrXNG3jmrUUfTr9DCXOs1quY0kqcfPmzHucpScpNyb6tnl9b5U4qejpa8U+M8o+HWf4W8ejtPO/JlrnW3ureGP3pf5GKq16teXeqzcn6nEh5PV9o6rVz/rX3jw7vgvY8VKfthCgFJsAAB3tKufg3ai34J+F+/Q2RGmptNNbYNqsrhXNrCp15S9z2/krreKltLaenOPZ... (truncated)
     <span class="nav-name">infini<em>T</em></span>
-  </a>
+  </div>
   <ul class="nav-links">
     <li><a href="#gallery">Gallery</a></li>
     <li><a href="#teacher">About</a></li>
     <li><a href="#batches">Batches</a></li>
     <li><a href="#meemers">Meemers</a></li>
   </ul>
-  <a href="#members" class="nav-cta">Join Now</a>
+  <a href="#meemers" class="nav-cta">Join Now</a>
 </nav>
 
 <!-- HERO -->
