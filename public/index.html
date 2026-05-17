@@ -345,7 +345,7 @@ footer{background:var(--ink);padding:3.5rem 4rem 2rem;border-top:1px solid rgba(
       <p class="s-eye">The Classroom</p>
       <h2 class="s-h2">Where Physics<br><em>Comes Alive</em></h2>
     </div>
-    <div class="gal-grid">
+    <div class="gal-grid" id="gal-grid">
       <div class="gc rv d1"><img src="https://images.unsplash.com/photo-1532012197267-da84d127e765?w=1000&q=80" alt=""><div class="gc-mask"></div><div class="gc-ov"></div><span class="gc-cap">The Learning Space</span></div>
       <div class="gc rv d2"><img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?w=800&q=80" alt=""><div class="gc-mask"></div><div class="gc-ov"></div><span class="gc-cap">Focused Study</span></div>
       <div class="gc rv d3"><img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&q=80" alt=""><div class="gc-mask"></div><div class="gc-ov"></div><span class="gc-cap">Physics in Motion</span></div>
@@ -415,7 +415,7 @@ footer{background:var(--ink);padding:3.5rem 4rem 2rem;border-top:1px solid rgba(
 <!-- NOTICE -->
 <div id="notice">
   <span class="n-badge">📌 Notice</span>
-  <div class="n-text">Batch Alpha Admission Open — Limited seats &nbsp;·&nbsp; Batch Gamma Crash starting April 2026 — 3 seats left &nbsp;·&nbsp; First Batch Beta class: Friday 5:00 PM Room 203 &nbsp;·&nbsp; Batch Alpha Admission Open — Limited seats &nbsp;·&nbsp; Batch Gamma Crash starting April 2026 — 3 seats left &nbsp;·&nbsp; First Batch Beta class: Friday 5:00 PM Room 203 &nbsp;·&nbsp;</div>
+  <div class="n-text" id="notice-text">Loading...</div>
 </div>
 
 <!-- BATCHES -->
@@ -427,7 +427,7 @@ footer{background:var(--ink);padding:3.5rem 4rem 2rem;border-top:1px solid rgba(
         <h2 class="s-h2 rv d1">Active <em>Batches</em></h2>
       </div>
     </div>
-    <div class="bat-grid">
+    <div class="bat-grid" id="bat-grid">
       <div class="bc rv d1" data-tilt>
         <div class="bc-top"><span class="bc-tag">HSC · 2026</span><h3 class="bc-name">Batch Alpha</h3><p class="bc-sub">Higher Secondary Physics — Full Syllabus</p></div>
         <div class="bc-body">
@@ -475,7 +475,7 @@ footer{background:var(--ink);padding:3.5rem 4rem 2rem;border-top:1px solid rgba(
       <p class="s-eye">What Students Say</p>
       <h2 class="s-h2">Words of <em>Praise</em></h2>
     </div>
-    <div class="tst-grid">
+    <div class="tst-grid" id="tst-grid">
       <div class="tc rv d1"><div class="tc-q">"</div><p class="tc-txt">Turag Sir's way of explaining mechanics and thermodynamics changed everything. I finally understood <em>why</em> the equations work, not just how to use them.</p><div class="tc-au"><div class="tc-av">R</div><div><div class="tc-name">Rahim Ahmed</div><div class="tc-res">GPA 5.0 — HSC 2025</div></div></div></div>
       <div class="tc rv d2"><div class="tc-q">"</div><p class="tc-txt">The admission batch was intense but worth every session. Sir's problem-solving techniques are absolutely unique. Got into BUET EEE!</p><div class="tc-au"><div class="tc-av">F</div><div><div class="tc-name">Fatima Khatun</div><div class="tc-res">BUET Admission 2025</div></div></div></div>
       <div class="tc rv d3"><div class="tc-q">"</div><p class="tc-txt">Never liked physics until I joined infiniT. Turag Sir makes it feel like magic. My SSC result speaks for itself.</p><div class="tc-au"><div class="tc-av">S</div><div><div class="tc-name">Sakib Hassan</div><div class="tc-res">GPA 5.0 — SSC 2025</div></div></div></div>
@@ -519,6 +519,7 @@ footer{background:var(--ink);padding:3.5rem 4rem 2rem;border-top:1px solid rgba(
       <a href="#teacher">About</a>
       <a href="#batches">Batches</a>
       <a href="#meemers">Meemers</a>
+      <a href="/admin" style="color:rgba(255,255,255,.15)">Admin</a>
     </nav>
   </div>
   <div class="ft-bot">
@@ -900,6 +901,112 @@ document.addEventListener('mousemove',e=>{
   const y=(e.clientY/window.innerHeight-.5)*10;
   hLogo.style.transform=`translate(${x}px,${y}px)`;
 });
+
+// ══════════════════════════════════════════
+// DYNAMIC DATA — fetch from API & auto-refresh
+// ══════════════════════════════════════════
+const API='/api';
+
+async function fetchJSON(url){
+  try{ const r=await fetch(API+url); return r.ok?await r.json():null; }catch(e){return null;}
+}
+
+async function loadGallery(){
+  const data=await fetchJSON('/gallery');
+  if(!data||!data.length) return;
+  const grid=document.getElementById('gal-grid');
+  const cls=['rv d1','rv d2','rv d3'];
+  grid.innerHTML=data.slice(0,6).map((g,i)=>`
+    <div class="gc ${cls[i%3]}"><img src="${g.url}" alt="${g.caption||''}"><div class="gc-mask"></div><div class="gc-ov"></div><span class="gc-cap">${g.caption||''}</span></div>
+  `).join('');
+  grid.querySelectorAll('.gc').forEach(el=>{el.classList.add('on');});
+}
+
+async function loadBatches(){
+  const data=await fetchJSON('/batches');
+  if(!data||!data.length) return;
+  const grid=document.getElementById('bat-grid');
+  grid.innerHTML=data.map((b,i)=>{
+    const seatsLeft=b.total_seats-b.enrolled;
+    const pillClass=seatsLeft<=3?'p-warm':'p-open';
+    const pillText=seatsLeft<=3?'Almost Full':'Open';
+    return `
+    <div class="bc rv d${Math.min(i+1,3)}" data-tilt>
+      <div class="bc-top"><span class="bc-tag">${b.tag}</span><h3 class="bc-name">${b.name}</h3><p class="bc-sub">${b.subtitle}</p></div>
+      <div class="bc-body">
+        <div class="bc-rows">
+          <div class="bc-row"><div class="bc-ico">⏰</div>${b.schedule}</div>
+          <div class="bc-row"><div class="bc-ico">📍</div>${b.location}${b.room?', '+b.room:''}</div>
+          <div class="bc-row"><div class="bc-ico">📅</div>Starts: ${b.start_date}</div>
+          <div class="bc-row"><div class="bc-ico">🎓</div>Turag Sir</div>
+        </div>
+        <div class="bc-ft"><span class="pill ${pillClass}">${pillText}</span><span class="bc-seats">${seatsLeft} / ${b.total_seats} seats</span></div>
+      </div>
+    </div>`;
+  }).join('');
+  // Re-observe new elements
+  document.querySelectorAll('.rv:not(.on)').forEach(el=>io.observe(el));
+  // Re-init tilt
+  document.querySelectorAll('[data-tilt]').forEach(card=>{
+    card.addEventListener('mousemove',e=>{
+      const r=card.getBoundingClientRect();
+      const x=(e.clientX-r.left)/r.width-.5;
+      const y=(e.clientY-r.top)/r.height-.5;
+      card.style.transform=`perspective(800px) rotateX(${-y*10}deg) rotateY(${x*10}deg) translateY(-8px)`;
+    });
+    card.addEventListener('mouseleave',()=>{card.style.transform='';});
+  });
+}
+
+async function loadTestimonials(){
+  const data=await fetchJSON('/testimonials');
+  if(!data||!data.length) return;
+  const grid=document.getElementById('tst-grid');
+  grid.innerHTML=data.map(t=>`
+    <div class="tc rv"><div class="tc-q">"</div><p class="tc-txt">${t.text}</p><div class="tc-au"><div class="tc-av">${(t.name||'?')[0]}</div><div><div class="tc-name">${t.name}</div><div class="tc-res">${t.result||''}</div></div></div></div>
+  `).join('');
+  document.querySelectorAll('.tc.rv:not(.on)').forEach(el=>io.observe(el));
+}
+
+async function loadTeacher(){
+  const t=await fetchJSON('/teacher');
+  if(!t) return;
+  const nameEl=document.querySelector('.t-name');
+  const roleEl=document.querySelector('.t-role');
+  const bioEl=document.querySelector('.t-bio');
+  const imgEl=document.querySelector('.t-frame img');
+  if(nameEl) nameEl.innerHTML=t.name.replace(' ','<br>');
+  if(roleEl) roleEl.textContent=t.title+' · '+t.institution;
+  if(bioEl) bioEl.textContent=t.bio;
+  if(imgEl && t.photo) imgEl.src=t.photo;
+}
+
+async function loadAnnouncements(){
+  const data=await fetchJSON('/announcements');
+  if(!data||!data.length) return;
+  const textEl=document.getElementById('notice-text');
+  if(textEl){
+    const msg=data.map(a=>a.title+(a.body?' — '+a.body:'')).join(' &nbsp;·&nbsp; ');
+    textEl.innerHTML=msg+' &nbsp;·&nbsp; '+msg;
+  }
+}
+
+// Load all dynamic data
+function loadAllData(){
+  loadGallery();
+  loadBatches();
+  loadTestimonials();
+  loadTeacher();
+  loadAnnouncements();
+}
+
+// Initial load after page is ready
+window.addEventListener('DOMContentLoaded',()=>{
+  setTimeout(loadAllData,500);
+});
+
+// Auto-refresh every 30 seconds for instant admin changes
+setInterval(loadAllData,30000);
 </script>
 </body>
 </html>

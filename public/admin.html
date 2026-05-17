@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>infiniT Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;400;500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#242836;--border:#2d3148;
+  --gold:#C49A2A;--gold2:#E8C96A;--gold3:rgba(196,154,42,.12);
+  --text:#e8e6e1;--muted:#8a8a9a;--danger:#e74c3c;--success:#2ecc71;
+  --radius:8px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+button{cursor:pointer;font-family:inherit}
+input,textarea,select{font-family:inherit}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999}
+#login-screen.hidden{display:none}
+.login-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:3rem;width:100%;max-width:400px;text-align:center}
+.login-box h1{font-size:1.8rem;margin-bottom:.5rem;color:var(--gold)}
+.login-box p{color:var(--muted);font-size:.85rem;margin-bottom:2rem}
+.login-box input{width:100%;padding:.9rem 1rem;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:.9rem;margin-bottom:1rem;outline:none;transition:border-color .3s}
+.login-box input:focus{border-color:var(--gold)}
+.login-box button{width:100%;padding:.9rem;background:var(--gold);color:#000;border:none;border-radius:var(--radius);font-size:.85rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;transition:background .3s}
+.login-box button:hover{background:var(--gold2)}
+.login-error{color:var(--danger);font-size:.8rem;margin-top:.5rem;display:none}
+
+/* LAYOUT */
+#admin-panel{display:none}
+#admin-panel.active{display:flex}
+.sidebar{width:240px;background:var(--surface);border-right:1px solid var(--border);height:100vh;position:fixed;left:0;top:0;padding:1.5rem 0;overflow-y:auto;z-index:100}
+.sidebar-brand{padding:0 1.5rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}
+.sidebar-brand h2{font-size:1.2rem;color:var(--gold)}
+.sidebar-brand span{font-size:.7rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:.8rem;padding:.75rem 1.5rem;color:var(--muted);font-size:.85rem;transition:all .2s;cursor:pointer;border-left:3px solid transparent}
+.nav-item:hover{color:var(--text);background:var(--surface2)}
+.nav-item.active{color:var(--gold);background:var(--gold3);border-left-color:var(--gold)}
+.nav-item svg{width:18px;height:18px;flex-shrink:0}
+
+.main{margin-left:240px;flex:1;min-height:100vh}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar h1{font-size:1.3rem;font-weight:600}
+.topbar-right{display:flex;align-items:center;gap:1rem}
+.topbar-user{font-size:.85rem;color:var(--muted)}
+.btn-logout{padding:.5rem 1rem;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;transition:all .3s}
+.btn-logout:hover{border-color:var(--danger);color:var(--danger)}
+
+.content{padding:2rem}
+.section{display:none}
+.section.active{display:block}
+
+/* CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem}
+.stat-card .label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem}
+.stat-card .value{font-size:2rem;font-weight:700;color:var(--gold)}
+
+/* TABLE */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:.8rem 1rem;font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);background:var(--surface2);border-bottom:1px solid var(--border)}
+td{padding:.8rem 1rem;font-size:.85rem;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+
+/* BUTTONS */
+.btn{padding:.5rem 1rem;border:none;border-radius:var(--radius);font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;transition:all .3s}
+.btn-gold{background:var(--gold);color:#000}
+.btn-gold:hover{background:var(--gold2)}
+.btn-sm{padding:.35rem .7rem;font-size:.7rem}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-danger:hover{opacity:.85}
+.btn-success{background:var(--success);color:#fff}
+.btn-success:hover{opacity:.85}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+
+/* FORM */
+.form-group{margin-bottom:1.2rem}
+.form-group label{display:block;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:.75rem 1rem;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:.85rem;outline:none;transition:border-color .3s}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--gold)}
+.form-group textarea{min-height:100px;resize:vertical}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.form-actions{display:flex;gap:.5rem;margin-top:1.5rem}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:200}
+.modal-overlay.active{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:2rem;width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
+.modal h2{font-size:1.2rem;margin-bottom:1.5rem;color:var(--gold)}
+.modal-close{float:right;background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer}
+.modal-close:hover{color:var(--text)}
+
+/* BADGE */
+.badge{display:inline-block;padding:.2rem .6rem;border-radius:20px;font-size:.7rem;font-weight:600;text-transform:uppercase}
+.badge-pending{background:rgba(241,196,15,.15);color:#f1c40f}
+.badge-approved{background:rgba(46,204,113,.15);color:#2ecc71}
+.badge-rejected{background:rgba(231,76,60,.15);color:#e74c3c}
+.badge-open{background:rgba(46,204,113,.15);color:#2ecc71}
+.badge-closed{background:rgba(231,76,60,.15);color:#e74c3c}
+.badge-featured{background:rgba(196,154,42,.15);color:var(--gold)}
+
+/* TOAST */
+#toast{position:fixed;bottom:2rem;right:2rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.5rem;font-size:.85rem;z-index:300;transform:translateY(100px);opacity:0;transition:all .3s}
+#toast.show{transform:translateY(0);opacity:1}
+#toast.success{border-color:var(--success)}
+#toast.error{border-color:var(--danger)}
+
+/* MEME GRID */
+.meme-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem}
+.meme-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.meme-card img{width:100%;height:200px;object-fit:cover}
+.meme-card .body{padding:1rem}
+.meme-card .caption{font-size:.85rem;margin-bottom:.5rem}
+.meme-card .meta{font-size:.7rem;color:var(--muted);margin-bottom:.8rem}
+.meme-card .actions{display:flex;gap:.4rem;flex-wrap:wrap}
+
+/* GALLERY GRID */
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem}
+.gallery-item{position:relative;border-radius:var(--radius);overflow:hidden;aspect-ratio:4/3}
+.gallery-item img{width:100%;height:100%;object-fit:cover}
+.gallery-item .overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;gap:.5rem;opacity:0;transition:opacity .3s}
+.gallery-item:hover .overlay{opacity:1}
+
+@media(max-width:768px){
+  .sidebar{width:60px;padding:1rem 0}
+  .sidebar-brand,.nav-item span{display:none}
+  .nav-item{justify-content:center;padding:.75rem}
+  .main{margin-left:60px}
+  .form-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-box">
+    <h1>infiniT</h1>
+    <p>Admin Panel — Sign in to continue</p>
+    <input type="email" id="admin-email" placeholder="Email" autocomplete="email">
+    <input type="password" id="admin-password" placeholder="Password" autocomplete="current-password">
+    <button onclick="adminLogin()">Sign In</button>
+    <p class="login-error" id="login-error"></p>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="admin-panel">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <h2>infiniT</h2>
+      <span>Admin Panel</span>
+    </div>
+    <div class="nav-item active" data-section="dashboard" onclick="showSection('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Dashboard</span>
+    </div>
+    <div class="nav-item" data-section="batches" onclick="showSection('batches')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <span>Batches</span>
+    </div>
+    <div class="nav-item" data-section="gallery" onclick="showSection('gallery')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+      <span>Gallery</span>
+    </div>
+    <div class="nav-item" data-section="announcements" onclick="showSection('announcements')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 17H2a3.5 3.5 0 0 0 0 7h20a3.5 3.5 0 0 0 0-7z"/><path d="M5.5 17c1.38 0 2.5-1.57 2.5-3.5S6.38 10 5 10"/><path d="M18.5 17c1.38 0 2.5-1.57 2.5-3.5S19.88 10 18.5 10"/><path d="M12 2v8"/></svg>
+      <span>Announcements</span>
+    </div>
+    <div class="nav-item" data-section="memes" onclick="showSection('memes')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+      <span>Memes</span>
+    </div>
+    <div class="nav-item" data-section="users" onclick="showSection('users')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span>Users</span>
+    </div>
+    <div class="nav-item" data-section="testimonials" onclick="showSection('testimonials')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span>Testimonials</span>
+    </div>
+    <div class="nav-item" data-section="teacher" onclick="showSection('teacher')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 11V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v5"/><path d="M12 4v5"/><path d="M8 4v5"/><path d="M16 4v5"/></svg>
+      <span>Teacher</span>
+    </div>
+    <div class="nav-item" data-section="settings" onclick="showSection('settings')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span>Settings</span>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+    <div class="topbar">
+      <h1 id="page-title">Dashboard</h1>
+      <div class="topbar-right">
+        <span class="topbar-user" id="topbar-user"></span>
+        <button class="btn-logout" onclick="adminLogout()">Logout</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- DASHBOARD -->
+      <div class="section active" id="sec-dashboard">
+        <div class="stats-grid" id="stats-grid"></div>
+      </div>
+
+      <!-- BATCHES -->
+      <div class="section" id="sec-batches">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+          <h2>Batches</h2>
+          <button class="btn btn-gold" onclick="openBatchModal()">+ Add Batch</button>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Name</th><th>Tag</th><th>Schedule</th><th>Seats</th><th>Status</th><th>Actions</th></tr></thead><tbody id="batches-tbody"></tbody></table></div>
+      </div>
+
+      <!-- GALLERY -->
+      <div class="section" id="sec-gallery">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+          <h2>Gallery</h2>
+          <button class="btn btn-gold" onclick="openGalleryModal()">+ Add Image</button>
+        </div>
+        <div class="gallery-grid" id="gallery-grid"></div>
+      </div>
+
+      <!-- ANNOUNCEMENTS -->
+      <div class="section" id="sec-announcements">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+          <h2>Announcements</h2>
+          <button class="btn btn-gold" onclick="openAnnouncementModal()">+ Add</button>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Title</th><th>Pinned</th><th>Created</th><th>Actions</th></tr></thead><tbody id="announcements-tbody"></tbody></table></div>
+      </div>
+
+      <!-- MEMES -->
+      <div class="section" id="sec-memes">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+          <h2>Meme Moderation</h2>
+          <div style="display:flex;gap:.5rem">
+            <button class="btn btn-outline btn-sm" onclick="loadMemes('pending')">Pending</button>
+            <button class="btn btn-outline btn-sm" onclick="loadMemes('approved')">Approved</button>
+            <button class="btn btn-outline btn-sm" onclick="loadMemes('rejected')">Rejected</button>
+          </div>
+        </div>
+        <div class="meme-grid" id="meme-grid"></div>
+      </div>
+
+      <!-- USERS -->
+      <div class="section" id="sec-users">
+        <h2 style="margin-bottom:1.5rem">Users</h2>
+        <div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead><tbody id="users-tbody"></tbody></table></div>
+      </div>
+
+      <!-- TESTIMONIALS -->
+      <div class="section" id="sec-testimonials">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+          <h2>Testimonials</h2>
+          <button class="btn btn-gold" onclick="openTestimonialModal()">+ Add</button>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Name</th><th>Result</th><th>Text</th><th>Actions</th></tr></thead><tbody id="testimonials-tbody"></tbody></table></div>
+      </div>
+
+      <!-- TEACHER -->
+      <div class="section" id="sec-teacher">
+        <h2 style="margin-bottom:1.5rem">Teacher Profile</h2>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;max-width:600px">
+          <div class="form-group"><label>Name</label><input id="t-name"></div>
+          <div class="form-group"><label>Title</label><input id="t-title"></div>
+          <div class="form-group"><label>Institution</label><input id="t-institution"></div>
+          <div class="form-group"><label>Qualification</label><input id="t-qualification"></div>
+          <div class="form-group"><label>Bio</label><textarea id="t-bio"></textarea></div>
+          <div class="form-group"><label>Photo URL</label><input id="t-photo"></div>
+          <div class="form-actions"><button class="btn btn-gold" onclick="saveTeacher()">Save Changes</button></div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="section" id="sec-settings">
+        <h2 style="margin-bottom:1.5rem">Site Settings</h2>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;max-width:600px">
+          <div class="form-group"><label>Site Name</label><input id="s-site_name"></div>
+          <div class="form-group"><label>Slogan</label><input id="s-slogan"></div>
+          <div class="form-group"><label>Contact Email</label><input id="s-contact_email"></div>
+          <div class="form-actions"><button class="btn btn-gold" onclick="saveSettings()">Save Changes</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-batch">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-batch')">&times;</button>
+    <h2 id="batch-modal-title">Add Batch</h2>
+    <input type="hidden" id="b-id">
+    <div class="form-row">
+      <div class="form-group"><label>Name</label><input id="b-name"></div>
+      <div class="form-group"><label>Subtitle</label><input id="b-subtitle"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Tag</label><input id="b-tag"></div>
+      <div class="form-group"><label>Schedule</label><input id="b-schedule"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Location</label><input id="b-location"></div>
+      <div class="form-group"><label>Room</label><input id="b-room"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Start Date</label><input id="b-start_date"></div>
+      <div class="form-group"><label>Total Seats</label><input id="b-total_seats" type="number"></div>
+    </div>
+    <div class="form-group"><label>Status</label><select id="b-status"><option value="open">Open</option><option value="full">Full</option><option value="closed">Closed</option></select></div>
+    <div class="form-actions"><button class="btn btn-gold" onclick="saveBatch()">Save</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-gallery">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-gallery')">&times;</button>
+    <h2>Add Image</h2>
+    <div class="form-group"><label>Image URL</label><input id="g-url"></div>
+    <div class="form-group"><label>Caption</label><input id="g-caption"></div>
+    <div class="form-group"><label>Sort Order</label><input id="g-sort_order" type="number" value="0"></div>
+    <div class="form-actions"><button class="btn btn-gold" onclick="saveGallery()">Save</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-announcement">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-announcement')">&times;</button>
+    <h2>Add Announcement</h2>
+    <div class="form-group"><label>Title</label><input id="a-title"></div>
+    <div class="form-group"><label>Body</label><textarea id="a-body"></textarea></div>
+    <div class="form-group"><label><input type="checkbox" id="a-pinned"> Pin to top</label></div>
+    <div class="form-actions"><button class="btn btn-gold" onclick="saveAnnouncement()">Save</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-testimonial">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-testimonial')">&times;</button>
+    <h2>Add Testimonial</h2>
+    <div class="form-row">
+      <div class="form-group"><label>Name</label><input id="tst-name"></div>
+      <div class="form-group"><label>Result</label><input id="tst-result"></div>
+    </div>
+    <div class="form-group"><label>Text</label><textarea id="tst-text"></textarea></div>
+    <div class="form-group"><label>Avatar URL</label><input id="tst-avatar"></div>
+    <div class="form-group"><label>Sort Order</label><input id="tst-sort_order" type="number" value="0"></div>
+    <div class="form-actions"><button class="btn btn-gold" onclick="saveTestimonial()">Save</button></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+const API = '/api';
+let token = localStorage.getItem('admin_token');
+
+// ── AUTH ──
+async function adminLogin() {
+  const email = document.getElementById('admin-email').value;
+  const password = document.getElementById('admin-password').value;
+  const errEl = document.getElementById('login-error');
+  try {
+    const res = await fetch(API + '/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) { errEl.textContent = data.error; errEl.style.display = 'block'; return; }
+    if (data.user.role !== 'admin') { errEl.textContent = 'Not an admin account'; errEl.style.display = 'block'; return; }
+    token = data.token;
+    localStorage.setItem('admin_token', token);
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('admin-panel').classList.add('active');
+    document.getElementById('topbar-user').textContent = data.user.name;
+    loadAll();
+  } catch (e) { errEl.textContent = 'Connection error'; errEl.style.display = 'block'; }
+}
+
+function adminLogout() {
+  localStorage.removeItem('admin_token');
+  token = null;
+  location.reload();
+}
+
+// Check session on load
+if (token) {
+  fetch(API + '/auth/me', { headers: { Authorization: 'Bearer ' + token } })
+    .then(r => r.json())
+    .then(user => {
+      if (user.role === 'admin') {
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('admin-panel').classList.add('active');
+        document.getElementById('topbar-user').textContent = user.name;
+        loadAll();
+      } else { adminLogout(); }
+    })
+    .catch(() => adminLogout());
+}
+
+// ── NAV ──
+function showSection(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  document.querySelector(`.nav-item[data-section="${name}"]`).classList.add('active');
+  document.getElementById('page-title').textContent = name.charAt(0).toUpperCase() + name.slice(1);
+}
+
+// ── API HELPER ──
+function api(path, opts = {}) {
+  return fetch(API + path, {
+    ...opts,
+    headers: { ...opts.headers, Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }
+  }).then(r => r.json());
+}
+
+// ── TOAST ──
+function toast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = type;
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── LOAD ALL ──
+function loadAll() {
+  loadStats();
+  loadBatches();
+  loadGallery();
+  loadAnnouncements();
+  loadMemes('pending');
+  loadUsers();
+  loadTestimonials();
+  loadTeacher();
+  loadSettings();
+}
+
+// ── STATS ──
+async function loadStats() {
+  const s = await api('/admin/stats');
+  document.getElementById('stats-grid').innerHTML = `
+    <div class="stat-card"><div class="label">Students</div><div class="value">${s.students}</div></div>
+    <div class="stat-card"><div class="label">Active Batches</div><div class="value">${s.batches}</div></div>
+    <div class="stat-card"><div class="label">Pending Memes</div><div class="value">${s.pendingMemes}</div></div>
+    <div class="stat-card"><div class="label">Approved Memes</div><div class="value">${s.approvedMemes}</div></div>
+    <div class="stat-card"><div class="label">Total Enrolled</div><div class="value">${s.enrolled}</div></div>
+  `;
+}
+
+// ── BATCHES ──
+async function loadBatches() {
+  const batches = await api('/admin/batches');
+  document.getElementById('batches-tbody').innerHTML = batches.map(b => `
+    <tr>
+      <td><strong>${b.name}</strong><br><small style="color:var(--muted)">${b.subtitle}</small></td>
+      <td><span class="badge badge-${b.status === 'open' ? 'open' : 'closed'}">${b.tag}</span></td>
+      <td>${b.schedule}</td>
+      <td>${b.enrolled}/${b.total_seats}</td>
+      <td><span class="badge badge-${b.is_active ? 'approved' : 'rejected'}">${b.is_active ? 'Active' : 'Inactive'}</span></td>
+      <td>
+        <button class="btn btn-outline btn-sm" onclick='editBatch(${JSON.stringify(b)})'>Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteBatch('${b.id}')">Delete</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openBatchModal() {
+  document.getElementById('batch-modal-title').textContent = 'Add Batch';
+  ['b-id','b-name','b-subtitle','b-tag','b-schedule','b-location','b-room','b-start_date'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('b-total_seats').value = 30;
+  document.getElementById('b-status').value = 'open';
+  document.getElementById('modal-batch').classList.add('active');
+}
+
+function editBatch(b) {
+  document.getElementById('batch-modal-title').textContent = 'Edit Batch';
+  document.getElementById('b-id').value = b.id;
+  document.getElementById('b-name').value = b.name;
+  document.getElementById('b-subtitle').value = b.subtitle;
+  document.getElementById('b-tag').value = b.tag;
+  document.getElementById('b-schedule').value = b.schedule;
+  document.getElementById('b-location').value = b.location;
+  document.getElementById('b-room').value = b.room;
+  document.getElementById('b-start_date').value = b.start_date;
+  document.getElementById('b-total_seats').value = b.total_seats;
+  document.getElementById('b-status').value = b.status;
+  document.getElementById('modal-batch').classList.add('active');
+}
+
+async function saveBatch() {
+  const id = document.getElementById('b-id').value;
+  const data = {
+    name: document.getElementById('b-name').value,
+    subtitle: document.getElementById('b-subtitle').value,
+    tag: document.getElementById('b-tag').value,
+    schedule: document.getElementById('b-schedule').value,
+    location: document.getElementById('b-location').value,
+    room: document.getElementById('b-room').value,
+    start_date: document.getElementById('b-start_date').value,
+    total_seats: parseInt(document.getElementById('b-total_seats').value),
+    status: document.getElementById('b-status').value
+  };
+  if (id) {
+    await api('/admin/batches/' + id, { method: 'PUT', body: JSON.stringify(data) });
+  } else {
+    await api('/admin/batches', { method: 'POST', body: JSON.stringify(data) });
+  }
+  closeModal('modal-batch');
+  loadBatches();
+  toast('Batch saved');
+}
+
+async function deleteBatch(id) {
+  if (!confirm('Delete this batch?')) return;
+  await api('/admin/batches/' + id, { method: 'DELETE' });
+  loadBatches();
+  toast('Batch deleted');
+}
+
+// ── GALLERY ──
+async function loadGallery() {
+  const items = await api('/admin/gallery');
+  document.getElementById('gallery-grid').innerHTML = items.map(g => `
+    <div class="gallery-item">
+      <img src="${g.url}" alt="${g.caption}">
+      <div class="overlay">
+        <button class="btn btn-danger btn-sm" onclick="deleteGallery('${g.id}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openGalleryModal() {
+  ['g-url','g-caption'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('g-sort_order').value = 0;
+  document.getElementById('modal-gallery').classList.add('active');
+}
+
+async function saveGallery() {
+  await api('/admin/gallery', {
+    method: 'POST',
+    body: JSON.stringify({
+      url: document.getElementById('g-url').value,
+      caption: document.getElementById('g-caption').value,
+      sort_order: parseInt(document.getElementById('g-sort_order').value)
+    })
+  });
+  closeModal('modal-gallery');
+  loadGallery();
+  toast('Image added');
+}
+
+async function deleteGallery(id) {
+  if (!confirm('Delete this image?')) return;
+  await api('/admin/gallery/' + id, { method: 'DELETE' });
+  loadGallery();
+  toast('Image deleted');
+}
+
+// ── ANNOUNCEMENTS ──
+async function loadAnnouncements() {
+  const items = await api('/admin/announcements');
+  document.getElementById('announcements-tbody').innerHTML = items.map(a => `
+    <tr>
+      <td><strong>${a.title}</strong><br><small style="color:var(--muted)">${(a.body || '').substring(0, 60)}...</small></td>
+      <td>${a.is_pinned ? '📌' : ''}</td>
+      <td>${a.created_at}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteAnnouncement('${a.id}')">Delete</button></td>
+    </tr>
+  `).join('');
+}
+
+function openAnnouncementModal() {
+  ['a-title','a-body'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('a-pinned').checked = false;
+  document.getElementById('modal-announcement').classList.add('active');
+}
+
+async function saveAnnouncement() {
+  await api('/admin/announcements', {
+    method: 'POST',
+    body: JSON.stringify({
+      title: document.getElementById('a-title').value,
+      body: document.getElementById('a-body').value,
+      is_pinned: document.getElementById('a-pinned').checked
+    })
+  });
+  closeModal('modal-announcement');
+  loadAnnouncements();
+  toast('Announcement added');
+}
+
+async function deleteAnnouncement(id) {
+  if (!confirm('Delete this announcement?')) return;
+  await api('/admin/announcements/' + id, { method: 'DELETE' });
+  loadAnnouncements();
+  toast('Announcement deleted');
+}
+
+// ── MEMES ──
+async function loadMemes(status = 'pending') {
+  const memes = await api('/admin/memes?status=' + status);
+  document.getElementById('meme-grid').innerHTML = memes.length ? memes.map(m => `
+    <div class="meme-card">
+      <img src="${m.image_url}" alt="">
+      <div class="body">
+        <div class="caption">${m.caption || ''}</div>
+        <div class="meta">By ${m.author_name} · ${m.created_at} · <span class="badge badge-${m.status}">${m.status}</span></div>
+        <div class="actions">
+          ${m.status === 'pending' ? `
+            <button class="btn btn-success btn-sm" onclick="moderateMeme('${m.id}','approve')">Approve</button>
+            <button class="btn btn-danger btn-sm" onclick="moderateMeme('${m.id}','reject')">Reject</button>
+          ` : ''}
+          <button class="btn btn-outline btn-sm" onclick="moderateMeme('${m.id}','feature')">${m.is_featured ? 'Unfeature' : 'Feature'}</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteMeme('${m.id}')">Delete</button>
+        </div>
+      </div>
+    </div>
+  `).join('') : '<p style="color:var(--muted);padding:2rem">No memes in this category</p>';
+}
+
+async function moderateMeme(id, action) {
+  await api('/admin/memes/' + id + '/' + action, { method: 'PUT', body: JSON.stringify({ note: '' }) });
+  loadMemes('pending');
+  toast('Meme ' + action + 'd');
+}
+
+async function deleteMeme(id) {
+  if (!confirm('Delete this meme?')) return;
+  await api('/admin/memes/' + id, { method: 'DELETE' });
+  loadMemes('pending');
+  toast('Meme deleted');
+}
+
+// ── USERS ──
+async function loadUsers() {
+  const users = await api('/admin/users');
+  document.getElementById('users-tbody').innerHTML = users.map(u => `
+    <tr>
+      <td>${u.name}</td>
+      <td>${u.email}</td>
+      <td><span class="badge badge-${u.role === 'admin' ? 'featured' : 'pending'}">${u.role}</span></td>
+      <td><span class="badge badge-${u.is_banned ? 'rejected' : 'approved'}">${u.is_banned ? 'Banned' : 'Active'}</span></td>
+      <td>
+        <button class="btn btn-outline btn-sm" onclick="banUser('${u.id}')">${u.is_banned ? 'Unban' : 'Ban'}</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function banUser(id) {
+  await api('/admin/users/' + id + '/ban', { method: 'PUT' });
+  loadUsers();
+  toast('User updated');
+}
+
+// ── TESTIMONIALS ──
+async function loadTestimonials() {
+  const items = await api('/admin/testimonials');
+  document.getElementById('testimonials-tbody').innerHTML = items.map(t => `
+    <tr>
+      <td><strong>${t.name}</strong></td>
+      <td>${t.result || '—'}</td>
+      <td>${(t.text || '').substring(0, 60)}...</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteTestimonial('${t.id}')">Delete</button></td>
+    </tr>
+  `).join('');
+}
+
+function openTestimonialModal() {
+  ['tst-name','tst-result','tst-text','tst-avatar'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('tst-sort_order').value = 0;
+  document.getElementById('modal-testimonial').classList.add('active');
+}
+
+async function saveTestimonial() {
+  await api('/admin/testimonials', {
+    method: 'POST',
+    body: JSON.stringify({
+      name: document.getElementById('tst-name').value,
+      result: document.getElementById('tst-result').value,
+      text: document.getElementById('tst-text').value,
+      avatar: document.getElementById('tst-avatar').value,
+      sort_order: parseInt(document.getElementById('tst-sort_order').value)
+    })
+  });
+  closeModal('modal-testimonial');
+  loadTestimonials();
+  toast('Testimonial added');
+}
+
+async function deleteTestimonial(id) {
+  if (!confirm('Delete this testimonial?')) return;
+  await api('/admin/testimonials/' + id, { method: 'DELETE' });
+  loadTestimonials();
+  toast('Testimonial deleted');
+}
+
+// ── TEACHER ──
+async function loadTeacher() {
+  const t = await api('/admin/teacher');
+  if (!t) return;
+  document.getElementById('t-name').value = t.name || '';
+  document.getElementById('t-title').value = t.title || '';
+  document.getElementById('t-institution').value = t.institution || '';
+  document.getElementById('t-qualification').value = t.qualification || '';
+  document.getElementById('t-bio').value = t.bio || '';
+  document.getElementById('t-photo').value = t.photo || '';
+}
+
+async function saveTeacher() {
+  await api('/admin/teacher', {
+    method: 'PUT',
+    body: JSON.stringify({
+      name: document.getElementById('t-name').value,
+      title: document.getElementById('t-title').value,
+      institution: document.getElementById('t-institution').value,
+      qualification: document.getElementById('t-qualification').value,
+      bio: document.getElementById('t-bio').value,
+      photo: document.getElementById('t-photo').value
+    })
+  });
+  toast('Teacher profile updated');
+}
+
+// ── SETTINGS ──
+async function loadSettings() {
+  const s = await api('/admin/settings');
+  document.getElementById('s-site_name').value = s.site_name || '';
+  document.getElementById('s-slogan').value = s.slogan || '';
+  document.getElementById('s-contact_email').value = s.contact_email || '';
+}
+
+async function saveSettings() {
+  await api('/admin/settings', {
+    method: 'PUT',
+    body: JSON.stringify({
+      site_name: document.getElementById('s-site_name').value,
+      slogan: document.getElementById('s-slogan').value,
+      contact_email: document.getElementById('s-contact_email').value
+    })
+  });
+  toast('Settings saved');
+}
+
+// ── MODALS ──
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('active'); });
+});
+
+// ── AUTO-REFRESH (every 30s) ──
+setInterval(loadAll, 30000);
+</script>
+</body>
+</html>
