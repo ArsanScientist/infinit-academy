@@ -383,6 +383,12 @@ async function adminLogin() {
     if (data.user.role !== 'admin') { errEl.textContent = 'Not an admin account'; errEl.style.display = 'block'; return; }
     token = data.token;
     localStorage.setItem('admin_token', token);
+    localStorage.setItem('infinit_user', JSON.stringify({
+      uid: data.user.id,
+      name: data.user.name,
+      email: data.user.email,
+      role: data.user.role
+    }));
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('admin-panel').classList.add('active');
     document.getElementById('topbar-user').textContent = data.user.name;
@@ -392,6 +398,7 @@ async function adminLogin() {
 
 function adminLogout() {
   localStorage.removeItem('admin_token');
+  localStorage.removeItem('infinit_user');
   token = null;
   location.reload();
 }
@@ -402,6 +409,9 @@ if (token) {
     .then(r => r.json())
     .then(user => {
       if (user.role === 'admin') {
+        localStorage.setItem('infinit_user', JSON.stringify({
+          uid: user.id, name: user.name, email: user.email, role: user.role
+        }));
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('admin-panel').classList.add('active');
         document.getElementById('topbar-user').textContent = user.name;
